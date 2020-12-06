@@ -8,7 +8,7 @@ fn main() {
     println!("Result: {}", result);
 
     'outer: for noun in 0..100 {
-        '_inner: for verb in 0..99 {
+        '_inner: for verb in 0..100 {
             let mut initialed = initial(&mut input.clone(), noun, verb);
             if intcode_computer(&mut initialed) == 19690720 {
                 println!("Result2: {}", 100 * noun + verb);
