@@ -1,21 +1,22 @@
 use std::fs;
 use regex::Regex;
 use std::collections::HashMap;
-use std::collections::HashSet;
 
 fn main() {
     let contents = fs::read_to_string("input.txt").expect("Error");
     let re = Regex::new(r"((\w+)( \w+)( bag))").unwrap();
-    let mut dic = HashMap::<&str, HashSet<&str>>::new();
+    let vals = Regex::new(r"(\d)").unwrap();
+    let mut dic = HashMap::<&str, HashMap<&str, usize>>::new();
 
     for line in contents.lines() {
         let bags: Vec<&str> = re.find_iter(line).map(|mat| mat.as_str()).collect();
+        let values: Vec<usize> = vals.find_iter(line).map(|mat| mat.as_str().parse::<usize>().expect("parse error")).collect();
         // println!("{:?}", bags);
-        dic.entry(bags[0]).or_insert(HashSet::new());
+        dic.entry(bags[0]).or_insert(HashMap::new());
         for i in 1..bags.len() {
             if bags[i] != "no other bag" {
-                if !dic[bags[0]].contains(bags[i]) {
-                    dic.get_mut(bags[0]).unwrap().insert(bags[i]);
+                if !dic[bags[0]].contains_key(bags[i]) {
+                    dic.get_mut(bags[0]).unwrap().insert(bags[i], values[i-1]);
                 }
             }
         }
@@ -25,21 +26,23 @@ fn main() {
     let target = "shiny gold bag";
     let mut path = HashMap::<&str, bool>::new();
     for key in dic.keys() {
-        if dfs(key, target, &dic, &path) {
+        if dfs(key, target, &dic, &mut path) {
             result += 1;
         }
     }
     println!("Result: {}", result);
+
+    println!("Result2: {}", dfs2(target, &dic));
 }
 
-fn dfs(bag: &str, target: &str, dic: &HashMap::<&str, HashSet<&str>>, path: &HashMap::<&str, bool>) -> bool {
-    if dic[bag].contains(target) {
+fn dfs <'a> (bag: &'a str, target: &str, dic: &HashMap::<&'a str, HashMap<&'a str, usize>>, path: &mut HashMap::<&'a str, bool>) -> bool {
+    if dic[bag].contains_key(target) {
         return true;
     } else if path.contains_key(bag) {
         return path[bag];
     } else {
         let mut flag = false;
-        for b in dic[bag].iter() {
+        for b in dic[bag].keys() {
             if dfs(b, target, dic, path) {
                 flag = true;
                 break;
@@ -50,36 +53,11 @@ fn dfs(bag: &str, target: &str, dic: &HashMap::<&str, HashSet<&str>>, path: &Has
     }
 }
 
-trait Process {
-    fn process(&mut self, file: &str);
-    fn dfs(&self, bag: &str, target: &str, dic: &HashMap::<&str, HashSet<&str>>, path: &HashMap::<&str, bool>) -> bool;
-}
-
-struct Luggages <'a> {
-    dic: &'a mut HashMap::<&'a str, HashSet<&'a str>>,
-    path: &'a mut HashMap::<&'a str, &'a bool>
-}
-
-impl <'a, Luggages: Process> Process for Luggages {
-    fn process (&mut self, file: &str) {
-        let contents = fs::read_to_string("input.txt").expect("Error");
-        let re = Regex::new(r"((\w+)( \w+)( bag))").unwrap();
-
-        for line in contents.lines() {
-            let bags: Vec<&str> = re.find_iter(line).map(|mat| mat.as_str()).collect();
-            // println!("{:?}", bags);
-            self.dic.entry(bags[0]).or_insert(HashSet::new());
-            for i in 1..bags.len() {
-                if bags[i] != "no other bag" {
-                    if !dic[bags[0]].contains(bags[i]) {
-                        dic.get_mut(bags[0]).unwrap().insert(bags[i]);
-                    }
-                }
-            }
-        }
-
+fn dfs2 <'a> (bag: &'a str, dic: &HashMap::<&'a str, HashMap<&'a str, usize>>) -> usize {
+    let mut sum = 0;
+    for (key, val) in dic[bag].iter() {
+        sum += val + val*dfs2(key, dic);
     }
-    fn dfs(&self, bag: &str, target: &str, dic: &HashMap::<&str, HashSet<&str>>, path: &HashMap::<&str, bool>) {
-        return 
-    }
+    return sum;
+
 }
