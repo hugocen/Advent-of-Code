@@ -43,23 +43,23 @@ impl IntcodeComputer<'_> {
         // println!("instruction: {}", instruction);
         for i in 0..nums {
             let mode = &instruction[instruction.len()-2-i-1..instruction.len()-2-i];
-            println!("para idx: {}", self.idx+i+1);
+            // println!("para idx: {}", self.idx+i+1);
             // println!("mode: {}", mode);
             // println!("parameter: {}", self.program[self.idx+i+1]);
-            println!("parse parameter: {}", self.program[self.idx+i+1].parse::<isize>().expect("parse error"));
-            println!("parse parameter2: {}", self.program[self.program[self.idx+i+1].parse::<usize>().expect("parse error")].parse::<isize>().expect("parse error"));
+            // println!("parse parameter: {}", self.program[self.idx+i+1].parse::<isize>().expect("parse error"));
+            // println!("parse parameter2: {}", self.program[self.program[self.idx+i+1].parse::<usize>().expect("parse error")].parse::<isize>().expect("parse error"));
             match mode {
                 "0" => parameters.push(self.program[self.program[self.idx+i+1].parse::<usize>().expect("parse error")].parse::<isize>().expect("parse error")),
                 "1" => parameters.push(self.program[self.idx+i+1].parse::<isize>().expect("parse error")),
                 _ => panic!("mode error")
             }
         }
-        println!("{:?}", parameters);
+        // println!("{:?}", parameters);
         return parameters;
     }
     
     fn one(&mut self, instruction: &str, step: usize) {
-        let new_instruction = format!("0{}", &instruction[1..instruction.len()]);
+        let new_instruction = format!("1{}", &instruction[1..instruction.len()]);
         let parameters = self.parameter_mode(&new_instruction, 3);
         let new_value = format!("{}", parameters[0] + parameters[1]);
         // println!("new_value: {}, parameters[2]: {}", &new_value, parameters[2]);
@@ -68,7 +68,7 @@ impl IntcodeComputer<'_> {
     }
 
     fn two(&mut self, instruction: &str, step: usize) {
-        let new_instruction = format!("0{}", &instruction[1..instruction.len()]);
+        let new_instruction = format!("1{}", &instruction[1..instruction.len()]);
         let parameters = self.parameter_mode(&new_instruction, 3);
         let new_value = format!("{}", parameters[0] * parameters[1]);
         // println!("new_value: {}, parameters[2]: {}", &new_value, parameters[2]);
@@ -77,7 +77,7 @@ impl IntcodeComputer<'_> {
     }
 
     fn three(&mut self, step: usize) {
-        let new_instruction = format!("{:0>5}", "03");
+        let new_instruction = format!("{:1>5}", "03");
         let parameters = self.parameter_mode(&new_instruction, 1);
         let new_value = format!("{}", self.input);
         self.program[parameters[0] as usize] = new_value;
@@ -87,6 +87,6 @@ impl IntcodeComputer<'_> {
     fn four(&mut self, instruction: &str, step: usize) -> isize {
         let parameters = self.parameter_mode(&instruction, 1);
         self.idx += step;
-        return self.program[parameters[0] as usize].parse::<isize>().expect("parse error");
+        return parameters[0];
     }
 }
