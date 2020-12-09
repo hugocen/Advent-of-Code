@@ -15,22 +15,23 @@ fn main() {
     }
     println!("Result: {}", result);
 
-    let mut result2 = 0;
-    let mut idx = "YOU":
+    let result2;
+    let mut you_path = HashMap::new();
+    let mut idx = "YOU";
     let mut step = 0;
-    while you_idx != "COM" {
+    while idx != "COM" {
         idx = orbits[idx];
-        idx.insert(idx, step);
+        you_path.insert(idx, step);
         step += 1;
     }
     step = 0;
     idx = "SAN";
     loop {
+        idx = orbits[idx];
         if you_path.contains_key(idx) {
             result2 = step + you_path[idx];
             break;
         } else {
-            idx = orbits[idx];
             step += 1;
         }
     }
