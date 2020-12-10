@@ -28,9 +28,6 @@ fn main() {
     three_jolt += 1;
 
     let result = one_jolt * three_jolt;
-    println!("adapters: {:?}", adapters);
-    println!("one_jolt: {}", one_jolt);
-    println!("three_jolt: {}", three_jolt);
     println!("Result: {}", result);
     let result2 = dp(&adapters);
     println!("Result2: {}", result2);
@@ -39,7 +36,7 @@ fn main() {
 fn dp(adapters: &Vec<i128>) -> i128 {
     let mut adapters_clone = adapters.clone();
     adapters_clone.insert(0, 0);
-    let mut dp_adapters = vec![0 as i128; adapters_clone.len()+1];
+    let mut dp_adapters = vec![0 as i128; adapters_clone.len()];
     dp_adapters[0] = 1;
     for i in 1..dp_adapters.len() {
         let mut sum = 0;
@@ -49,14 +46,11 @@ fn dp(adapters: &Vec<i128>) -> i128 {
         }
 
         for j in idx as usize..i {
-            if i > 0 && j > 0 {
-                if (adapters_clone[i-1] - adapters_clone[j-1]) <= 3 {
-                    sum += dp_adapters[j];
-                }
+            if (adapters_clone[i] - adapters_clone[j]) <= 3 {
+                sum += dp_adapters[j];
             }
         }
         dp_adapters[i] = sum;
     }
-    println!("dp_adapters: {:?}", dp_adapters);
     return dp_adapters[dp_adapters.len()-1]
 }
