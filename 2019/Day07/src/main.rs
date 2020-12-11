@@ -5,24 +5,37 @@ use itertools::Itertools;
 fn main() {
     let contents = fs::read_to_string("Day7.txt").expect("Error");
     let mut program: Vec<String> = contents.split(",").map(|s| s.to_owned()).collect();
-    amplification_circuit(&mut program);
+    let result1 = amplification_circuit(&mut program, 0..5, false);
+    let result2 = amplification_circuit(&mut program, 5..10, true);
+    println!("Result1: {}", result1);
+    println!("Result2: {}", result2);
 }
 
-fn amplification_circuit(controller_software: &mut Vec<String>) {
+fn amplification_circuit(controller_software: &mut Vec<String>, range: std::ops::Range<isize>, feedback: bool) -> isize {
     let mut result = 0  as isize;
-    let perms = (0..5).permutations(5);
+    let perms = range.permutations(5);
     for perm in perms {
         let mut amplifiers = Vec::<IntcodeComputer>::new();
         let mut input = 0 as isize;
         for phase in perm {
             let mut computer = IntcodeComputer::new(controller_software.clone(), phase);
-            computer.process(input);
-            input = computer.output[0];
+            if !feedback {
+                computer.halt = true;
+            }
             amplifiers.push(computer);
         }
-        result = max(result, amplifiers[amplifiers.len()-1].output[0]);
+        loop {
+            for i in 0..5 {
+                amplifiers[i].process(input);
+                input = amplifiers[i].output.last().unwrap().clone();
+            }
+            if amplifiers.last().unwrap().halt {
+                break;
+            }
+        }
+        result = max(result, amplifiers.last().unwrap().output.last().unwrap().clone());
     }
-    println!("Result: {}", result);
+    return result;
 }
 
 struct IntcodeComputer {
@@ -31,7 +44,8 @@ struct IntcodeComputer {
     phase: isize,
     phase_setted: bool,
     idx: usize,
-    output: Vec<isize>
+    output: Vec<isize>,
+    halt: bool
 }
 
 impl IntcodeComputer {
@@ -42,7 +56,8 @@ impl IntcodeComputer {
             phase: phase,
             phase_setted: false,
             idx: 0,
-            output: Vec::<isize>::new()
+            output: Vec::<isize>::new(),
+            halt: false
         }
     }
 
@@ -58,12 +73,16 @@ impl IntcodeComputer {
                 "04" => {
                     let out = self.four(&instruction, 2);
                     self.output.push(out);
+                    break;
                 },
                 "05" => self.five(&instruction, 3),
                 "06" => self.six(&instruction, 3),
                 "07" => self.seven(&instruction, 4),
                 "08" => self.eight(&instruction, 4),
-                "99" => break,
+                "99" => {
+                    self.halt = true;
+                    break;
+                }
                 _ => panic!("IntcodeComputer process error")
             }
         }
