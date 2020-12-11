@@ -2,7 +2,7 @@ use std::fs;
 use std::cmp::min;
 
 fn main() {
-    let contents = fs::read_to_string("Inputs.txt").expect("Error");
+    let contents = fs::read_to_string("inputs.txt").expect("Error");
     let mut map: Vec<Vec<char>> = contents.split_whitespace().map(|s| s.chars().collect::<Vec<_>>()).collect();
 
     fn check(i: usize, j: usize, ni: isize, nj: isize, map: &Vec<Vec<char>>) -> usize {
