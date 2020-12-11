@@ -1,7 +1,7 @@
 use std::fs;
 
 fn main() {
-    let contents = fs::read_to_string("Inputs.txt").expect("Error");
+    let contents = fs::read_to_string("inputs.txt").expect("Error");
     let mut adapters: Vec<i128> = contents.split_whitespace().map(|s| s.parse::<i128>().expect("parse error")).collect();
     adapters.sort();
     let mut jolts = 0 as i128;
