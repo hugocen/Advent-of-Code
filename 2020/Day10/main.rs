@@ -7,7 +7,6 @@ fn main() {
     let mut jolts = 0 as i128;
     let mut idx = 0;
     let mut one_jolt = 0;
-    // let mut two_jolt = 0;
     let mut three_jolt = 0;
 
     while idx < adapters.len() {
@@ -24,7 +23,7 @@ fn main() {
         jolts = adapters[idx];
         idx += 1;
     }
-    // count you own device
+    // count your own device
     three_jolt += 1;
 
     let result = one_jolt * three_jolt;
@@ -44,7 +43,6 @@ fn dp(adapters: &Vec<i128>) -> i128 {
         if idx < 0 {
             idx = 0;
         }
-
         for j in idx as usize..i {
             if (adapters_clone[i] - adapters_clone[j]) <= 3 {
                 sum += dp_adapters[j];
