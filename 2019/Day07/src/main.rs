@@ -1,35 +1,53 @@
 use std::fs;
-use std::env;
+use std::cmp::max;
+use itertools::Itertools;
 
 fn main() {
-    let contents = fs::read_to_string("Day5.txt").expect("Error");
-    let args: Vec<String> = env::args().collect();
+    let contents = fs::read_to_string("Day7.txt").expect("Error");
     let mut program: Vec<String> = contents.split(",").map(|s| s.to_owned()).collect();
-    let input = args[1].parse::<isize>().expect("parse error");
-    let mut computer = IntcodeComputer{program: &mut program, input: input, idx: 0};
-    computer.process();
+    amplification_circuit(&mut program);
 }
 
-struct IntcodeComputer<'a> {
-    program: &'a mut Vec<String>,
+fn amplification_circuit(controller_software: &mut Vec<String>) {
+    let mut result = 0  as isize;
+    let perms = (0..5).permutations(5);
+    for perm in perms {
+        let mut amplifiers = Vec::<IntcodeComputer>::new();
+        let mut input = 0 as isize;
+        for phase in perm {
+            let mut computer = IntcodeComputer::new(controller_software.clone(), phase);
+            computer.process(input);
+            input = computer.output[0];
+            amplifiers.push(computer);
+        }
+        result = max(result, amplifiers[amplifiers.len()-1].output[0]);
+    }
+    println!("Result: {}", result);
+}
+
+struct IntcodeComputer {
+    program: Vec<String>,
     input: isize,
     phase: isize,
-    phase_setted, bool,
+    phase_setted: bool,
     idx: usize,
+    output: Vec<isize>
 }
 
-impl IntcodeComputer<'_> {
-    pub fn new(program: &mut Vec<String>, input: isize, phase: isize) -> IntcodeComputer {
+impl IntcodeComputer {
+    pub fn new(program: Vec<String>, phase: isize) -> IntcodeComputer {
         IntcodeComputer {
             program: program,
-            input: Medium,
+            input: 0,
             phase: phase,
             phase_setted: false,
             idx: 0,
+            output: Vec::<isize>::new()
         }
     }
 
-    fn process(&mut self) {
+    fn process(&mut self, input: isize) {
+        self.input = input;
         loop {
             let instruction = format!("{:0>5}", self.program[self.idx]);
             let opcode = &instruction[3..5];
@@ -39,7 +57,7 @@ impl IntcodeComputer<'_> {
                 "03" => self.three(2),
                 "04" => {
                     let out = self.four(&instruction, 2);
-                    println!("Output: {}", out);
+                    self.output.push(out);
                 },
                 "05" => self.five(&instruction, 3),
                 "06" => self.six(&instruction, 3),
@@ -49,7 +67,6 @@ impl IntcodeComputer<'_> {
                 _ => panic!("IntcodeComputer process error")
             }
         }
-        println!("Intcode Computer Process Done.");
     }
 
     fn parameter_mode(&self, instruction: &str, nums: usize) -> Vec<isize> {
@@ -84,7 +101,13 @@ impl IntcodeComputer<'_> {
     fn three(&mut self, step: usize) {
         let new_instruction = format!("{:1>5}", "03");
         let parameters = self.parameter_mode(&new_instruction, step-1);
-        let new_value = format!("{}", self.input);
+        let new_value;
+        if self.phase_setted {
+            new_value = format!("{}", self.input);
+        } else {
+            new_value = format!("{}", self.phase);
+            self.phase_setted = true;
+        }
         self.program[parameters[0] as usize] = new_value;
         self.idx += step;
     }
