@@ -166,7 +166,10 @@ def part2(tiles):
         '#    ##    ##    ###',
         ' #  #  #  #  #  #   ',
     ]
-    return search_pic(['#'], pic, False) - search_pic(sea_monster, pic, True) * 15
+    r1 = search_pic(['#'], pic, False)
+    r2 = search_pic(sea_monster, pic, False)
+    print(r1, r2)
+    return r1 - r2 * 15
 
 
 def extract_data(lines):
@@ -190,5 +193,5 @@ with open('inputs.txt') as f:
         for line in f.read().splitlines()
     ]
 
-    print(part1(extract_data(inputs)))
+    # print(part1(extract_data(inputs)))
     print(part2(extract_data(inputs)))

@@ -1,5 +1,6 @@
 use std::fs;
 use std::collections::HashSet;
+use colored::*;
 
 #[derive(PartialEq, Eq, Hash, Clone)]
 struct Tile {
@@ -188,10 +189,137 @@ fn part1(tiles: Vec<Tile>) -> isize {
     return result;
 }
 
+fn form_pic(order: &mut Vec<Tile>) -> Tile {
+    let tile_edge_len = order[0].edge_len - 2;
+    let num_of_tile_in_each_edge = (order.len() as f32).sqrt() as usize;
+    let pic_edge_len = tile_edge_len * num_of_tile_in_each_edge;
+    let mut pic = Vec::new();
+    for _ in 0..pic_edge_len {
+        pic.push("".to_string());
+    }
+
+    for ix in 0..order.len() {
+        order[ix].remove_edge();
+        for jx in 0..order[ix].tile.len() {
+            let idx = (ix / num_of_tile_in_each_edge) * tile_edge_len + jx;
+            pic[idx] += &order[ix].tile[jx];
+        }
+    }
+    return Tile::new(pic, 0);
+}
+
+fn search(target: &Vec<String>, pic: &Tile, print_to_terminal: bool) -> usize {
+    let target_row_len = target.len();
+    let target_column_len = target[0].len();
+    let pic_row_len = pic.tile.len();
+    let pic_column_len = pic.tile[0].len();
+
+    let mut p = Vec::new();
+    for i in 0..pic.tile.len() {
+        p.push(pic.tile[i].clone().green().to_string());
+    }
+
+    let mut count = 0;
+    let mut idx_i = pic_row_len as isize - target_row_len as isize + 1;
+    if idx_i < 0 {
+        idx_i = 0;
+    }
+    let mut idx_j = pic_column_len as isize - target_column_len as isize + 1;
+    if idx_j < 0 {
+        idx_j = 0;
+    }
+    for ix in 0..(idx_i as usize) {
+        for jx in 0..(idx_j as usize) {
+            let mut valid = true;
+            for kx in 0..target_row_len {
+                for lx in 0..target_column_len {
+                    if &target[kx][lx..lx+1] != " " && &target[kx][lx..lx+1] != &pic.tile[ix+kx][(jx+lx)..(jx+lx+1)] {
+                        valid = false;
+                    }
+                }
+            }
+            if valid {
+                count += 1;
+
+                // For printing
+                // for kx in 0..target_row_len {
+                //     for lx in 0..target_column_len {
+                //         if &target[kx][lx..lx+1] != " " {
+                //             let mut new_string = p[ix+kx][0..(jx+lx)].to_owned();
+                //             let target = p[ix+kx][(jx+lx)..(jx+lx+1)].to_owned();
+                //             new_string += &target.red();
+                //             p[ix+kx] = new_string;
+                //         }
+                //     }
+                // }
+            }
+        }
+    }
+
+    if print_to_terminal && count > 0 {
+        for i in 0..p.len() {
+            println!("{}", p[i]);
+        }
+    }
+    return count;
+}
+
+fn search_pic(target: &Vec<String>, pic: Tile, print_to_terminal: bool) -> usize {
+    let mut new_pic = pic.clone();
+    let mut count = search(target, &new_pic, print_to_terminal);
+    if count > 0 {
+        return count;
+    }
+
+    for _ in 0..3 {
+        new_pic.rotate_right();
+        count = search(target, &new_pic, print_to_terminal);
+        if count > 0 {
+            return count;
+        }
+    }
+
+    new_pic.flip();
+    count = search(target, &new_pic, print_to_terminal);
+    if count > 0 {
+        return count;
+    }
+
+    for _ in 0..3 {
+        new_pic.rotate_right();
+        count = search(target, &new_pic, print_to_terminal);
+        if count > 0 {
+            return count;
+        }
+    }
+
+    return 0;
+}
+
+fn part2(tiles: Vec<Tile>) -> usize {
+    let size = tiles.len();
+    let edge_size = (size as f32).sqrt() as usize;
+    let mut order = recursion(&mut Vec::new(), HashSet::new(), &tiles, edge_size);
+    let pic = form_pic(&mut order);
+
+    let sea_monster = vec![
+        "                  # ".to_string(),
+        "#    ##    ##    ###".to_string(),
+        " #  #  #  #  #  #   ".to_string(),
+    ];
+    let sea = vec!["#".to_string()];
+    let r1 = search_pic(&sea, pic.clone(), false);
+    let r2 = search_pic(&sea_monster, pic.clone(), false);
+    return r1 - (r2*15);
+}
+
 fn main() {
     let contents = fs::read_to_string("inputs.txt").expect("Error");
     let mut lines: Vec<String> = contents.lines().map(|l| l.to_owned()).collect();
     let tiles = extract_data(&mut lines);
-    let result1 = part1(tiles);
+    let result1 = part1(tiles.clone());
     println!("Result: {}", result1);
+
+    let result2 = part2(tiles.clone());
+    println!("Result2: {}", result2);
 }
