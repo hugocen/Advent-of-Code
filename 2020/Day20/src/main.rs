@@ -113,11 +113,6 @@ fn recursion(order: &mut Vec<Tile>, visited: HashSet<usize>, tiles: &Vec<Tile>, 
                 };
 
                 if check(order.clone(), &new_tile, edge_size) {
-                    // let mut new_order = order.clone();
-                    // new_order.push(new_tile.clone());
-                    // let mut new_visited = visited.clone();
-                    // new_visited.insert(new_tile.clone());
-                    // result = recursion(&mut new_order, new_visited, tiles, edge_size);
                     result = process(&new_tile);
                     if result.len() > 0{
                         return result;
