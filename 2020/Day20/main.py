@@ -1,5 +1,5 @@
 class Tile:
-    def __init__(self, tile: list[str], tile_id: int = 0):
+    def __init__(self, tile, tile_id: int = 0):
         self.tile = tile
         self.id = tile_id
         self.edge_len = len(tile)
@@ -26,10 +26,11 @@ class Tile:
         self.tile = rotated
 
     def flip(self):
-        flipped = []
-        for t in reversed(self.tile):
-            flipped.append(t)
-        self.tile = flipped
+        # flipped = []
+        # for t in reversed(self.tile):
+        #     flipped.append(t)
+        # self.tile = flipped
+        self.tile.reverse()
 
     def remove_edge(self):
         removed = []
@@ -41,7 +42,7 @@ class Tile:
         self.tile = removed
 
 
-def check(order: list[Tile], tile: Tile, edge_size: int) -> bool:
+def check(order, tile: Tile, edge_size: int) -> bool:
     if len(order) + 1 - edge_size > 0:
         if tile.top_edge() != order[len(order) - edge_size].bottom_edge():
             return False
@@ -63,7 +64,7 @@ reassemble = [
 ]
 
 
-def recursion(order, visited, tiles, edge_size) -> list[Tile]:
+def recursion(order, visited, tiles, edge_size):
     if len(order) == len(tiles):
         return order
 
@@ -77,7 +78,7 @@ def recursion(order, visited, tiles, edge_size) -> list[Tile]:
                         return result
 
 
-def form_pic(order: list[Tile]) -> Tile:
+def form_pic(order):
     tile_edge_len = order[0].edge_len - 2
     num_of_tile_in_each_edge = int(len(order) ** 0.5)
 
@@ -92,7 +93,7 @@ def form_pic(order: list[Tile]) -> Tile:
     return Tile(pic)
 
 
-def search(target: list[str], pic: Tile, print_to_terminal: bool) -> int:
+def search(target, pic: Tile, print_to_terminal: bool):
     target_row_len = len(target)
     target_column_len = len(target[0])
     pic_row_len = len(pic.tile)
@@ -134,7 +135,7 @@ def search(target: list[str], pic: Tile, print_to_terminal: bool) -> int:
     return count
 
 
-def search_pic(target: list[str], pic: Tile, print_to_terminal: bool) -> int:
+def search_pic(target, pic: Tile, print_to_terminal: bool):
     for r in reassemble:
         r(pic)
         count = search(target, pic, print_to_terminal)
@@ -144,7 +145,7 @@ def search_pic(target: list[str], pic: Tile, print_to_terminal: bool) -> int:
     return 0
 
 
-def part1(tiles: list[Tile]):
+def part1(tiles):
     size = len(tiles)
     edge_size = int(size ** 0.5)
     order = recursion([], set(), tiles, edge_size)
@@ -157,7 +158,7 @@ def part1(tiles: list[Tile]):
     return order[upper_left].id * order[upper_right].id * order[bottom_left].id * order[bottom_right].id
 
 
-def part2(tiles: list[Tile]):
+def part2(tiles):
     order = recursion([], set(), tiles, int(len(tiles) ** 0.5))
     pic = form_pic(order)
     sea_monster = [
@@ -168,7 +169,7 @@ def part2(tiles: list[Tile]):
     return search_pic(['#'], pic, False) - search_pic(sea_monster, pic, True) * 15
 
 
-def extract_data(lines) -> list[Tile]:
+def extract_data(lines):
     tile_id, tile = -1, []
     tiles = []
     for line in lines:
