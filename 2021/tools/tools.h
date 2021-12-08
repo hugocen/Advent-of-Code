@@ -1,3 +1,6 @@
+#ifndef TOOLS_H
+#define TOOLS_H
+
 #include <vector>
 #include <string>
 #include <fstream>
@@ -57,3 +60,31 @@ int max_value(vector<int> input)
     }
     return max;
 }
+
+vector<string> split_string_two_part(string input, char delim)
+{
+    vector<string> result;
+
+    string token;
+
+    auto found = input.find(delim);
+
+    result.push_back(input.substr(0, found));
+    result.push_back(input.substr(found + 1));
+
+    return result;
+};
+
+bool check_string_contain(string input, string target)
+{
+    for (int i = 0; i < target.length(); i++)
+    {
+        if (input.find(target[i]) == string::npos)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+#endif
