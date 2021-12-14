@@ -75,6 +75,20 @@ vector<string> split_string_two_part(string input, char delim)
     return result;
 };
 
+vector<string> split_string_two_part(string input, string delim)
+{
+    vector<string> result;
+
+    string token;
+
+    auto found = input.find(delim);
+
+    result.push_back(input.substr(0, found));
+    result.push_back(input.substr(found + delim.length()));
+
+    return result;
+};
+
 bool check_string_contain(string input, string target)
 {
     for (int i = 0; i < target.length(); i++)

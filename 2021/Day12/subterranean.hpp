@@ -60,11 +60,6 @@ int SubterraneanSystem::walk(string cave, map<string, int> visited, int visitLim
 {
     if (cave == "end")
     {
-        // for (auto &key : visited)
-        // {
-        //     cout << key.first << ": " << key.second << " ";
-        // }
-        // cout << endl;
         return 1;
     }
     if (!this->isBigCave(cave) && visited.find(cave) != visited.end())
