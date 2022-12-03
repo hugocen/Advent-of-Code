@@ -1,6 +1,9 @@
+# fmt: off
 import sys
 sys.path.append('../')
 from utils import io
+# fmt: on
+
 
 def puzzle1(input_file_path):
     data = io.get_data(input_file_path)
@@ -12,8 +15,9 @@ def puzzle1(input_file_path):
             continue
         carrying += int(line)
         max_calories = max(max_calories, carrying)
-    
+
     print(f"The Elf carrying the most calories carries: {max_calories}")
+
 
 def puzzle2(input_file_path):
     data = io.get_data(input_file_path)
@@ -31,7 +35,6 @@ def puzzle2(input_file_path):
     top3sums = calories[-1] + calories[-2] + calories[-3]
 
     print(f"Top 3 Elfs carrying the most calories carries sums: {top3sums}")
-
 
 
 if __name__ == "__main__":
