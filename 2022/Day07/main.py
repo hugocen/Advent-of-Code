@@ -101,9 +101,10 @@ class Day07(Base):
         need_for_update = 30000000 - free_space
         for size in all_dir_sizes:
             if size >= need_for_update:
-                print(f"The smallest directory that, if deleted, would free up enough space on the filesystem to run the update: {size}")
+                print(
+                    f"The smallest directory that, if deleted, would free up enough space on the filesystem to run the update: {size}"
+                )
                 return
-            
 
 
 if __name__ == "__main__":
