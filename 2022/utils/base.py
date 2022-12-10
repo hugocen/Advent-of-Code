@@ -21,10 +21,10 @@ class Base:
     def puzzle1(self):
         print("Puzzle 1 solution no implemented.")
 
-    def pizzle2(self):
+    def puzzle2(self):
         print("Puzzle 2 solution no implemented.")
 
     def run(self):
         self.preprocess_data()
         self.puzzle1()
-        self.pizzle2()
+        self.puzzle2()

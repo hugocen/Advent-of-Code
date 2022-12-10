@@ -30,7 +30,7 @@ class Day04(Base):
 
         print(f"Fully contain seats: {fully_contain}")
 
-    def pizzle2(self):
+    def puzzle2(self):
         overlap = 0
         for seat_a, seat_b in self.pairs:
             if seat_b[0] >= seat_a[0] and seat_b[0] <= seat_a[1]:
