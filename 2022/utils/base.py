@@ -18,6 +18,9 @@ class Base:
     def preprocess_data(self):
         pass
 
+    def reset_data(self):
+        pass
+
     def puzzle1(self):
         print("Puzzle 1 solution no implemented.")
 
@@ -27,4 +30,5 @@ class Base:
     def run(self):
         self.preprocess_data()
         self.puzzle1()
+        self.reset_data()
         self.puzzle2()
