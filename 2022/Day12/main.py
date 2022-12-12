@@ -76,9 +76,9 @@ class Day12(Base):
                     _, node_costs = self.dijkstra()
                     steps.append(node_costs[self.end])
         steps.sort()
-        print(f"What is the fewest steps required to move starting from any square with elevation a to the location that should get the best signal? {steps[0]}")
-
-
+        print(
+            f"What is the fewest steps required to move starting from any square with elevation a to the location that should get the best signal? {steps[0]}"
+        )
 
 
 if __name__ == "__main__":
