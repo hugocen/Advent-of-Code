@@ -4,9 +4,7 @@ sys.path.append('../')
 from utils.base import Base # pylint: disable=wrong-import-position,import-error
 # fmt: on
 import re
-import multiprocessing as mp
 from tqdm import tqdm
-from itertools import repeat
 
 
 class Sensor:
@@ -16,9 +14,30 @@ class Sensor:
         self.beacon_x = int(beacon_x)
         self.beacon_y = int(beacon_y)
         self.radius = abs(self.x - self.beacon_x) + abs(self.y - self.beacon_y)
+        self.edges = self.get_edges()
 
     def is_in_circle(self, x, y):
         return abs(x - self.x) + abs(y - self.y) <= self.radius
+
+    def get_edges(self):
+        points = set()
+        # up to right
+        point = (self.x, self.y + self.radius + 1)
+        for i in range(self.radius + 1):
+            points.add((point[0] + i, point[1] - i))
+        # right to down
+        point = (self.x + self.radius + 1, self.y)
+        for i in range(self.radius + 1):
+            points.add((point[0] - i, point[1] - i))
+        # down to left
+        point = (self.x, self.y - self.radius - 1)
+        for i in range(self.radius + 1):
+            points.add((point[0] - i, point[1] + i))
+        # left to up
+        point = (self.x - self.radius - 1, self.y)
+        for i in range(self.radius + 1):
+            points.add((point[0] + i, point[1] + i))
+        return points
 
 
 class Day15(Base):
@@ -30,7 +49,7 @@ class Day15(Base):
 
     def preprocess_data(self):
         pattern = r"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)"
-        for line in self.data:
+        for line in tqdm(self.data):
             match = re.search(pattern, line)
             sensor = Sensor(match.group(1), match.group(2), match.group(3), match.group(4))
             self.blocked.add((sensor.x, sensor.y))
@@ -42,9 +61,11 @@ class Day15(Base):
 
     def puzzle1(self):
         result = 0
-        for i in range((self.leftest - self.largest_radius - 10), self.rightest + self.largest_radius + 10):
-            # point = (i, 10)  # sample
-            point = (i, 2000000)  # input
+        for i in tqdm(range((self.leftest - self.largest_radius - 10), self.rightest + self.largest_radius + 10)):
+            if "sample" in self.input_file_path:
+                point = (i, 10)  # sample
+            else:
+                point = (i, 2000000)  # input
             if point not in self.blocked:
                 flag = False
                 for sensor in self.sensors:
@@ -55,51 +76,33 @@ class Day15(Base):
                     result += 1
         print(f"How many positions cannot contain a beacon? {result}")
 
-    @staticmethod
-    def test_out_of_sensor(i, search_space, sensors, blocked):
-        for j in range(search_space + 1):
-            point = (i, j)
-            if point not in blocked:
-                flag = False
-                for sensor in sensors:
-                    if sensor.is_in_circle(point[0], point[1]):
-                        flag = True
-                        break
-                if not flag:
-                    print(f"What is its tuning frequency? {point[0] * 4000000 + point[1]}")
-                    return
+    def test_out_of_sensor(self, point):
+        if point not in self.blocked:
+            flag = False
+            for sensor in self.sensors:
+                if sensor.is_in_circle(point[0], point[1]):
+                    flag = True
+                    break
+            if not flag:
+                print(f"What is its tuning frequency? {point[0] * 4000000 + point[1]}")
+                return True
+        return False
 
     def puzzle2(self):
-        # search_space = 20  # sample
-        search_space = 4000000  # input
+        if "sample" in self.input_file_path:
+            search_space = 20  # sample
+        else:
+            search_space = 4000000  # input
 
-        # process_pool = []
+        edges = []
+        for sensor in self.sensors:
+            edges.append(sensor.edges)
+        targets = set.union(*edges)
 
-        # for i in range(search_space + 1):
-        #     # self.test_out_of_sensor(point)
-        #     process_pool.append(
-        #         Process(
-        #             target=self.test_out_of_sensor,
-        #             args=(
-        #                 i,
-        #                 search_space,
-        #                 self.sensors,
-        #                 self.blocked,
-        #             ),
-        #         )
-        #     )
-
-        # for process in process_pool:
-        #     process.start()
-        # for process in process_pool:
-        #     process.join()
-        print(f"cpu cpunt: {mp.cpu_count()}")
-        inputs = zip(range(search_space + 1), repeat(search_space), repeat(self.sensors), repeat(self.blocked))
-        process_pool = mp.Pool(mp.cpu_count())
-        process_pool.starmap(
-            self.test_out_of_sensor,
-            tqdm(inputs, total=search_space + 1),
-        )
+        for target in tqdm(targets):
+            if target[0] <= search_space and target[0] >= 0 and target[1] <= search_space and target[1] >= 0:
+                if self.test_out_of_sensor(target):
+                    return
 
 
 if __name__ == "__main__":
