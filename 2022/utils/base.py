@@ -1,5 +1,6 @@
 import sys
 from utils import io
+import abc
 
 
 class Base:
@@ -15,15 +16,19 @@ class Base:
         for line in lines:
             self.data.append(line.replace("\n", ""))
 
+    @abc.abstractmethod
     def preprocess_data(self):
         pass
 
+    @abc.abstractmethod
     def reset_data(self):
         pass
 
+    @abc.abstractmethod
     def puzzle1(self):
         print("Puzzle 1 solution no implemented.")
 
+    @abc.abstractmethod
     def puzzle2(self):
         print("Puzzle 2 solution no implemented.")
 
