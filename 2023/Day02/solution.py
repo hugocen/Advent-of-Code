@@ -1,9 +1,3 @@
-
-
-
-from unittest import result
-
-
 class Solution:
     def process_game(self, line):
         game_number = int(line.split(": ")[0].split(" ")[1])
